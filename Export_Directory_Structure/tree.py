@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 from typing import List
 
-from .icons import get_file_icon, DIRECTORY_ICON
+from icons import get_file_icon, DIRECTORY_ICON
 
 IGNORE_PATTERNS = [
     ".git", "__pycache__", "*.pyc", "*.log", "venv", "*.env", ".idea",

@@ -8,8 +8,8 @@ import signal
 import argparse
 from pathlib import Path
 
-from .tree import IGNORE_PATTERNS, load_ignore_file, generate_project_tree
-from .gui import main as gui_main
+from tree import IGNORE_PATTERNS, load_ignore_file, generate_project_tree
+from gui import main as gui_main
 
 
 def watch_and_regenerate(start_path: str, ignore_patterns: list,

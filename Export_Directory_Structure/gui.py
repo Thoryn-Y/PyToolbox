@@ -10,7 +10,7 @@ from typing import List, Optional
 from tkinter import Tk, filedialog, messagebox, StringVar, BooleanVar, Text, Scrollbar, font
 from tkinter import ttk
 
-from .tree import IGNORE_PATTERNS, generate_project_tree, sanitize_folder_name
+from tree import IGNORE_PATTERNS, generate_project_tree, sanitize_folder_name
 
 
 def setup_high_dpi(root: Tk) -> None:
