@@ -7,7 +7,7 @@
 ## 运行方式
 
 ```
-python Export_Directory_Structure.py
+python main.py
 ```
 
 无参数运行即打开 GUI 界面。
@@ -39,16 +39,16 @@ python Export_Directory_Structure.py
 
 ```bat
 REM 一次性生成
-python Export_Directory_Structure.py -r D:\my_project
+python main.py -r D:\my_project
 
 REM 指定输出路径
-python Export_Directory_Structure.py -r D:\my_project -o D:\output\目录树.txt
+python main.py -r D:\my_project -o D:\output\目录树.txt
 
 REM 生成并持续监控（文件变动自动更新，Ctrl+C 停止）
-python Export_Directory_Structure.py -r D:\my_project -w
+python main.py -r D:\my_project -w
 
 REM 完整组合
-python Export_Directory_Structure.py -r D:\my_project -o D:\output\目录树.txt -w
+python main.py -r D:\my_project -o D:\output\目录树.txt -w
 ```
 
 > 使用 `-w` 监控功能需要先安装 watchdog：`pip install watchdog`

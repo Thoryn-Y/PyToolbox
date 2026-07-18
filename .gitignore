@@ -246,3 +246,5 @@ Sync_Folders/test_sync_folders.py
 训练损失曲线画图/
 Product_price_monitor/
 small_toy/
+
+.trae/
