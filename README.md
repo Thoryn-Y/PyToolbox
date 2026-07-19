@@ -1,6 +1,10 @@
 # PyToolbox
 
-  [中文](README.md) | [English](README.en.md)<br>
+<div align="center">
+  <p>
+    [中文](README.md) | [English](README.en.md)
+  </p>
+</div>
 
 包含一些python脚本，处理一些有些麻烦的、可能需要重复做的小事。
 

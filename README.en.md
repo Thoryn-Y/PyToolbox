@@ -1,6 +1,10 @@
 # PyToolbox
 
-  [中文](README.md) | [English](README.en.md)<br>
+<div align="center">
+  <p>
+    [中文](README.md) | [English](README.en.md)
+  </p>
+</div>
 
 A collection of Python scripts for handling small but tedious tasks that may need to be repeated.
 
