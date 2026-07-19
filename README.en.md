@@ -1,9 +1,7 @@
 # PyToolbox
 
 <div align="center">
-  <p>
-    <a href="README.en.md" target="_blank" rel="noopener noreferrer">English</a> | <a href="README.md" target="_blank" rel="noopener noreferrer">中文</a>
-  </p>
+  [中文](README.md) | [English](README.en.md)
 </div>
 
 A collection of Python scripts for handling small but tedious tasks that may need to be repeated.
