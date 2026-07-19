@@ -1,6 +1,6 @@
 # PyToolbox
 
-  [中文](README.md) | [English](README.en.md)
+[中文](README.md) | [English](README.en.md)
 
 A collection of Python scripts for handling small but tedious tasks that may need to be repeated.
 
@@ -66,7 +66,7 @@ Word/PDF to Markdown conversion tool. Converts `.docx` or `.pdf` files to Markdo
 **Features:**
 - Supports both Word and PDF input formats
 - Images automatically extracted and named with captions (subtitles), auto-numbered if no caption
-- Provides both GUI interface and command-line usage modes
+- Offers both GUI and command-line interfaces
 
 ## File_Operation_Class
 
