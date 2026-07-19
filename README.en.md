@@ -2,14 +2,8 @@
 
 <div align="center">
   <p>
-    <a href="README.en.md" target="_blank" rel="noopener noreferrer">
-      <img src="https://img.shields.io/badge/Language-English-green.svg" alt="English Version"></a>
+    <a href="README.en.md" target="_blank" rel="noopener noreferrer">English</a> | <a href="README.md" target="_blank" rel="noopener noreferrer">中文</a>
   </p>
-  <p>
-    <a href="README.md" target="_blank" rel="noopener noreferrer">
-      <img src="https://img.shields.io/badge/Language-Chinese-blue.svg" alt="Chinese Version"></a>
-  </p>
-  <br>
 </div>
 
 A collection of Python scripts for handling small but tedious tasks that may need to be repeated.
