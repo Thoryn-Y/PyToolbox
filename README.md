@@ -1,4 +1,17 @@
 # PyToolbox
+
+<div align="center">
+  <p>
+    <a href="README.en.md" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/Language-English-green.svg" alt="English Version"></a>
+  </p>
+  <p>
+    <a href="README.md" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/Language-Chinese-blue.svg" alt="Chinese Version"></a>
+  </p>
+  <br>
+</div>
+
 包含一些python脚本，处理一些有些麻烦的、可能需要重复做的小事。
 
 ## Annotation_Deleter
