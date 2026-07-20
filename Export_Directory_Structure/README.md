@@ -4,17 +4,14 @@
 
 ---
 
-## 运行方式
+# 运行方式
+
+## GUI 模式
 
 ```
 python main.py
 ```
-
 无参数运行即打开 GUI 界面。
-
----
-
-## GUI 模式
 
 1. 点击「浏览」选择要扫描的项目目录
 2. 在忽略规则文本框中编辑排除项（每行一个，支持 `*` 通配符）
@@ -55,15 +52,59 @@ python main.py -r D:\my_project -o D:\output\目录树.txt -w
 
 ---
 
-## 忽略规则
+## 开机自启监控模式
+
+通过 VBS 脚本实现开机后自动启动监控，全程无窗口运行。
+
+### 创建 VBS 文件
+
+**文件内容**（名字随意）：
+
+```vbs
+Set WshShell = CreateObject("WScript.Shell")
+
+cmd = "cmd /c " & _
+      "chcp 65001 >nul && " & _
+      "D: && " & _
+      "cd /d ""D:\path\to\PyToolbox"" && " & _
+      "call conda activate your_environment_name && " & _
+      "python ""Export_Directory_Structure\main.py"" -r ""D:\path\to\target"" -w"
+
+WshShell.Run cmd, 0, False
+
+Set WshShell = Nothing
+```
+
+### 关键操作步骤
+
+| 步骤 | 操作 |
+|-----|------|
+| 1. 创建文件 | 复制代码到记事本 |
+| 2. **编码设置** | **另存为 → 编码选"ANSI"**（UTF-8 会导致 VBS 编译错误），并把文件名中的文件后缀从txt改为vbs |
+| 3. 保存位置 | 按 `Win + R` 输入 `shell:startup`，将 `.vbs` 文件放入该文件夹 |
+| 4. 完成 | 重启测试，脚本后台静默运行，无窗口弹出 |
+
+### 核心要点
+
+| 要点 | 说明 |
+|-----|------|
+| **为什么用 VBS 而不是 BAT** | VBS 默认无窗口运行，能创建隐藏 CMD 进程执行命令 |
+| **`WshShell.Run` 参数** | `0` = 完全隐藏窗口，`False` = 异步执行不等待 |
+| **`""` 转义** | VBS 字符串内表示一个双引号字符 |
+| **`&&` 连接** | 前一条命令成功后才执行下一条 |
+| **文件编码必须用 ANSI** | UTF-8 会导致错误 |
+
+---
+
+# 忽略规则
 
 脚本有两层忽略机制，**叠加生效，互不影响**：
 
-### 1. 全局忽略规则（IGNORE_PATTERNS）
+## 1. 全局忽略规则（IGNORE_PATTERNS）
 
 内置于脚本中，排除 `.git`、`__pycache__`、`node_modules` 等通用目录/文件。GUI 模式下可在文本框中实时修改。
 
-### 2. 目标目录忽略文件（.autosummaryignore）
+## 2. 目标目录忽略文件（.autosummaryignore）
 
 在被扫描的**目标目录根下**放置 `.autosummaryignore` 文件，实现按项目独立配置的排除规则。
 
@@ -89,7 +130,7 @@ node_modules/
 
 ---
 
-## 输出示例
+# 输出示例
 
 ```
 📂 my_project (完整路径: D:\my_project)
