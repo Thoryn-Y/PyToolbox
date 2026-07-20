@@ -79,11 +79,13 @@ File content splitting tool. Splits file content by ratio via command line, suit
 
 ## Export_Directory_Structure
 
-Project directory structure export tool. Select a project folder via GUI to recursively traverse the directory tree and generate directory structure text with file type icons, supports custom ignore rules, can output to console or save as text file.
+Project directory structure export tool. Supports both CLI mode and GUI mode. Recursively traverses the directory tree to generate directory structure text with file type icons, supports custom ignore rules, and can output to console or save as text file.
 
 **Features:**
 - Built-in rich file type icon mapping for clear directory structure
 - Supports custom ignore rules (one rule per line, supports wildcards)
+- Supports both CLI mode and GUI mode
+- Supports file monitoring feature for automatic regeneration on file changes
 - Optional save to `result/` directory or direct output to console
 
 **File monitoring feature** inspired by [auto_summary](https://github.com/technogleb/auto_summary)
