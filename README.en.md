@@ -86,6 +86,8 @@ Project directory structure export tool. Select a project folder via GUI to recu
 - Supports custom ignore rules (one rule per line, supports wildcards)
 - Optional save to `result/` directory or direct output to console
 
+**File monitoring feature** inspired by [auto_summary](https://github.com/technogleb/auto_summary)
+
 ## Code_Relationship_Analyzer
 
 Python code relationship analysis tool. Select a project folder via GUI to extract function call relationships, class inheritance relationships, and import relationships using AST parsing, generating function call relationship graphs, class inheritance relationship graphs (PNG), and analysis summary text files.
