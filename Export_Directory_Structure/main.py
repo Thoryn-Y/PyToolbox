@@ -8,12 +8,11 @@ import signal
 import argparse
 from pathlib import Path
 
-from tree import IGNORE_PATTERNS, load_ignore_file, generate_project_tree
+from tree import IGNORE_PATTERNS, generate_project_tree
 from gui import main as gui_main
 
 
 def watch_and_regenerate(start_path: str, ignore_patterns: list,
-                         ignore_deep: list = None, ignore_shallow: list = None,
                          output_path: str = None):
     """
     监控目录变化，自动重新生成目录树。
@@ -36,8 +35,7 @@ def watch_and_regenerate(start_path: str, ignore_patterns: list,
                 return
             self._last_trigger = now
             print(f"\n🔄 检测到变动: {event.src_path}，重新生成...")
-            new_tree = generate_project_tree(start_path, ignore_patterns,
-                                             ignore_deep, ignore_shallow)
+            new_tree = generate_project_tree(start_path, ignore_patterns)
             if output_path and new_tree:
                 with open(output_path, 'w', encoding='utf-8') as f:
                     f.write(new_tree)
@@ -97,12 +95,8 @@ def main_cli():
         else:
             output_path = root_path / f"{root_path.name}_目录结构.txt"
 
-        # 读取忽略文件
-        ignore_deep, ignore_shallow = load_ignore_file(root_path)
-
         print(f"📂 正在生成 {root_path} 的目录结构...")
-        tree = generate_project_tree(str(root_path), IGNORE_PATTERNS,
-                                     ignore_deep, ignore_shallow)
+        tree = generate_project_tree(str(root_path), IGNORE_PATTERNS)
         if tree:
             output_dir = output_path.parent
             if output_dir and not output_dir.exists():
@@ -114,7 +108,6 @@ def main_cli():
             if args.watch:
                 print("👁️ 启动监控模式...")
                 watch_and_regenerate(str(root_path), IGNORE_PATTERNS,
-                                     ignore_deep, ignore_shallow,
                                      output_path=str(output_path))
         else:
             print("生成失败", file=sys.stderr)

@@ -90,7 +90,13 @@ def generate_project_tree(start_path: str, ignore_patterns: list,
     def traverse(current_path: Path, prefix: str = "", _deep=all_deep, _shallow=all_shallow):
         """递归遍历目录"""
         items = []
-        for item in current_path.iterdir():
+        try:
+            entries = list(current_path.iterdir())
+        except PermissionError:
+            # 无权限访问：添加标记并跳过该目录内容
+            tree.append(f"{prefix}    🔒 (无权限访问)")
+            return
+        for item in entries:
             if not is_ignored(item, ignore_patterns, _deep):
                 items.append(item)
 
@@ -101,6 +107,15 @@ def generate_project_tree(start_path: str, ignore_patterns: list,
             current_prefix = "└── " if is_last else "├── "
 
             if item.is_dir():
+                # 符号链接：显示但不递归，防止无限循环
+                if item.is_symlink():
+                    tree.append(f"{prefix}{current_prefix}{DIRECTORY_ICON} {item.name}/  (→ 符号链接)")
+                    if is_last:
+                        tree.append(f"{prefix}    ")
+                    else:
+                        tree.append(f"{prefix}│   ")
+                    continue
+                
                 # 浅排除：显示目录条目，但不递归子内容
                 if item.name in _shallow:
                     tree.append(f"{prefix}{current_prefix}{DIRECTORY_ICON} {item.name}/  (... 内容已折叠)")
@@ -110,7 +125,7 @@ def generate_project_tree(start_path: str, ignore_patterns: list,
                         tree.append(f"{prefix}│   ")
                     continue
 
-                tree.append(f"{prefix}{current_prefix}{DIRECTORY_ICON} {item.name}")
+                tree.append(f"{prefix}{current_prefix}{DIRECTORY_ICON} {item.name}/")
                 new_prefix = f"{prefix}    " if is_last else f"{prefix}│   "
                 traverse(item, new_prefix, _deep, _shallow)
                 if is_last:

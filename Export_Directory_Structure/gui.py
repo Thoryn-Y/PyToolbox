@@ -68,7 +68,9 @@ class DirectoryStructureGenerator:
         
         # 变量
         self.project_path_var = StringVar()
-        self.save_path_var = StringVar(value=os.path.join(self.script_dir, "result"))
+        self.save_path_var = StringVar(
+            value=os.path.abspath(os.path.join(self.script_dir, "result"))
+        )
         self.save_to_file_var = BooleanVar(value=False)
         
         self._setup_ui()
@@ -141,8 +143,8 @@ class DirectoryStructureGenerator:
         
         ttk.Label(save_path_frame, text="保存路径：").pack(side='left', padx=(0, 10))
         
-        save_entry = ttk.Entry(save_path_frame, textvariable=self.save_path_var, width=60)
-        save_entry.pack(side='left', fill='x', expand=True, padx=(0, 10))
+        self.save_entry = ttk.Entry(save_path_frame, textvariable=self.save_path_var, width=60)
+        self.save_entry.pack(side='left', fill='x', expand=True, padx=(0, 10))
         
         self.save_browse_btn = ttk.Button(
             save_path_frame, 
@@ -202,8 +204,10 @@ class DirectoryStructureGenerator:
             
     def _on_save_checkbox_changed(self):
         """保存复选框状态改变时的处理"""
-        # 可以在这里添加对保存路径输入框启用/禁用的逻辑
-        pass
+        # 根据复选框状态启用/禁用保存路径输入框和浏览按钮
+        state = 'normal' if self.save_to_file_var.get() else 'disabled'
+        self.save_entry.configure(state=state)
+        self.save_browse_btn.configure(state=state)
         
     def _get_ignore_patterns(self) -> List[str]:
         """从文本框获取忽略规则列表"""
