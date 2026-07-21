@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-from tkinter import Tk, filedialog, messagebox, StringVar, BooleanVar, Text, Scrollbar, font
+from tkinter import Tk, filedialog, messagebox, StringVar, BooleanVar, Text, Scrollbar, font, PanedWindow
 from tkinter import ttk
 
 from tree import IGNORE_PATTERNS, generate_project_tree, sanitize_folder_name
@@ -56,7 +56,7 @@ class DirectoryStructureGenerator:
     def __init__(self, root: Tk):
         self.root = root
         self.root.title("项目目录结构生成器")
-        self.root.geometry("1200x900")
+        self.root.geometry("1200x1200")
         self.root.minsize(1000, 700)
         
         # 设置字体
@@ -93,33 +93,57 @@ class DirectoryStructureGenerator:
         browse_btn = ttk.Button(path_frame, text="浏览", command=self._browse_project_folder, width=12)
         browse_btn.pack(side='left')
         
-        # ===== 中部：忽略规则区域 =====
-        ignore_frame = ttk.LabelFrame(main_frame, text="忽略规则（每行一个，支持通配符）", padding="10")
-        ignore_frame.pack(fill='both', expand=True, pady=(0, 15))
-        
+        # ===== 中部：可调整区域（忽略规则 + 生成结果）=====
+        paned = PanedWindow(main_frame, orient='vertical', sashrelief='ridge', sashwidth=5)
+        paned.pack(fill='both', expand=True, pady=(0, 15))
+
+        # 上半部分：忽略规则
+        ignore_frame = ttk.LabelFrame(paned, text="忽略规则（每行一个，支持通配符）", padding="10")
+        paned.add(ignore_frame, stretch='always')
+
         # 创建Text组件和滚动条
         text_frame = ttk.Frame(ignore_frame)
         text_frame.pack(fill='both', expand=True)
-        
+
         # 设置文本组件字体
         text_font = font.Font(family="Consolas", size=12)
-        
-        self.ignore_text = Text(text_frame, wrap='none', height=12, font=text_font)
+
+        self.ignore_text = Text(text_frame, wrap='none', height=8, font=text_font)
         scrollbar_y = Scrollbar(text_frame, orient='vertical', command=self.ignore_text.yview)
         scrollbar_x = Scrollbar(text_frame, orient='horizontal', command=self.ignore_text.xview)
-        
+
         self.ignore_text.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
-        
+
         # 布局
         self.ignore_text.grid(row=0, column=0, sticky='nsew')
         scrollbar_y.grid(row=0, column=1, sticky='ns')
         scrollbar_x.grid(row=1, column=0, sticky='ew')
-        
+
         text_frame.grid_rowconfigure(0, weight=1)
         text_frame.grid_columnconfigure(0, weight=1)
-        
+
         # 初始化忽略规则内容
         self._init_ignore_patterns()
+
+        # 下半部分：生成结果
+        result_frame = ttk.LabelFrame(paned, text="生成结果", padding="10")
+        paned.add(result_frame, stretch='always')
+
+        result_text_frame = ttk.Frame(result_frame)
+        result_text_frame.pack(fill='both', expand=True)
+
+        self.result_text = Text(result_text_frame, wrap='none', height=12, font=text_font, state='disabled')
+        result_scrollbar_y = Scrollbar(result_text_frame, orient='vertical', command=self.result_text.yview)
+        result_scrollbar_x = Scrollbar(result_text_frame, orient='horizontal', command=self.result_text.xview)
+
+        self.result_text.configure(yscrollcommand=result_scrollbar_y.set, xscrollcommand=result_scrollbar_x.set)
+
+        self.result_text.grid(row=0, column=0, sticky='nsew')
+        result_scrollbar_y.grid(row=0, column=1, sticky='ns')
+        result_scrollbar_x.grid(row=1, column=0, sticky='ew')
+
+        result_text_frame.grid_rowconfigure(0, weight=1)
+        result_text_frame.grid_columnconfigure(0, weight=1)
         
         # ===== 底部：保存设置区域 =====
         save_frame = ttk.LabelFrame(main_frame, text="保存设置", padding="10")
@@ -209,6 +233,14 @@ class DirectoryStructureGenerator:
         self.save_entry.configure(state=state)
         self.save_browse_btn.configure(state=state)
         
+    def _set_result_text(self, text: str) -> None:
+        """在生成结果文本框中显示内容"""
+        self.result_text.config(state='normal')
+        self.result_text.delete('1.0', 'end')
+        self.result_text.insert('1.0', text)
+        self.result_text.config(state='disabled')
+        self.result_text.see('1.0')
+
     def _get_ignore_patterns(self) -> List[str]:
         """从文本框获取忽略规则列表"""
         content = self.ignore_text.get('1.0', 'end-1c')
@@ -272,14 +304,18 @@ class DirectoryStructureGenerator:
         tree = generate_project_tree(project_path, ignore_patterns, None, None)
         
         if not tree:
+            self._set_result_text("")
             messagebox.showerror("错误", "生成目录结构失败", parent=self.root)
             return
         
+        # 在GUI中显示结果
+        self._set_result_text(tree)
+
         # 打印到控制台
         print("\n" + "=" * 80)
         print(tree)
         print("=" * 80)
-        
+
         # 根据复选框决定是否保存
         if self.save_to_file_var.get():
             output_path = self._get_output_path(project_path)
