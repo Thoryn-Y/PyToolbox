@@ -16,7 +16,7 @@ python main.py
 1. 点击「浏览」选择要扫描的项目目录
 2. 在忽略规则文本框中编辑排除项（每行一个，支持 `*` 通配符）
 3. 勾选「保存到文件」可指定输出路径（文件夹或完整文件路径均可）
-4. 点击「生成目录结构」，结果输出到控制台，若勾选保存则同时写入文件
+4. 点击「生成目录结构」，结果输出到 GUI 及控制台，若勾选保存则同时写入文件
 
 ---
 
@@ -135,12 +135,12 @@ node_modules/
 ```
 📂 my_project (完整路径: D:\my_project)
 ├── 📂 src/
-│   ├── 🐍 main.py
-│   ├── 🐍 utils.py
+│   ├── 🐍 main.py  (4.1 KB)
+│   ├── 🐍 utils.py  (1.2 KB)
 │   └── 📂 config/
-│       └── 📋 settings.yaml
+│       └── 📋 settings.yaml  (462.2 KB)
 ├── 📂 logs/  (... 内容已折叠)
 │   
-├── 📄 README.md
-└── 📋 requirements.txt
+├── 📄 README.md  (50.2 KB)
+└── 📋 requirements.txt  (1.79 KB)
 ```
