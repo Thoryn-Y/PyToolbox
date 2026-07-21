@@ -129,6 +129,13 @@ class DirectoryStructureGenerator:
         result_frame = ttk.LabelFrame(paned, text="生成结果", padding="10")
         paned.add(result_frame, stretch='always')
 
+        # 顶部按钮
+        result_btn_frame = ttk.Frame(result_frame)
+        result_btn_frame.pack(fill='x', pady=(0, 10))
+
+        copy_btn = ttk.Button(result_btn_frame, text="复制到剪贴板", command=self._copy_to_clipboard)
+        copy_btn.pack(side='left')
+
         result_text_frame = ttk.Frame(result_frame)
         result_text_frame.pack(fill='both', expand=True)
 
@@ -240,6 +247,16 @@ class DirectoryStructureGenerator:
         self.result_text.insert('1.0', text)
         self.result_text.config(state='disabled')
         self.result_text.see('1.0')
+
+    def _copy_to_clipboard(self) -> None:
+        """复制生成结果到剪贴板"""
+        content = self.result_text.get('1.0', 'end-1c')
+        if not content:
+            messagebox.showinfo("提示", "没有可复制的内容", parent=self.root)
+            return
+        self.root.clipboard_clear()
+        self.root.clipboard_append(content)
+        messagebox.showinfo("成功", "已复制到剪贴板", parent=self.root)
 
     def _get_ignore_patterns(self) -> List[str]:
         """从文本框获取忽略规则列表"""

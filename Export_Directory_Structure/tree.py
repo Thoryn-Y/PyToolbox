@@ -63,6 +63,18 @@ def sanitize_folder_name(name: str) -> str:
     return result
 
 
+def format_file_size(size_bytes: int) -> str:
+    """将字节数格式化为可读的大小字符串"""
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    elif size_bytes < 1024 ** 2:
+        return f"{size_bytes / 1024:.1f} KB"
+    elif size_bytes < 1024 ** 3:
+        return f"{size_bytes / 1024 ** 2:.1f} MB"
+    else:
+        return f"{size_bytes / 1024 ** 3:.1f} GB"
+
+
 def generate_project_tree(start_path: str, ignore_patterns: list,
                           ignore_deep: list = None, ignore_shallow: list = None) -> str:
     """生成项目目录结构
@@ -134,7 +146,11 @@ def generate_project_tree(start_path: str, ignore_patterns: list,
                     tree.append(f"{prefix}│   ")
             else:
                 icon = get_file_icon(item.name)
-                tree.append(f"{prefix}{current_prefix}{icon} {item.name}")
+                try:
+                    size = format_file_size(item.stat().st_size)
+                    tree.append(f"{prefix}{current_prefix}{icon} {item.name}  ({size})")
+                except (OSError, PermissionError):
+                    tree.append(f"{prefix}{current_prefix}{icon} {item.name}")
 
     traverse(start_path)
 
