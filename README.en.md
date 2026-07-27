@@ -50,15 +50,6 @@ Password generator. Batch generate random passwords based on configured characte
 - Strength assessment considers length, character diversity, distribution uniformity, consecutive characters, and common patterns
 - Configuration centralized at the bottom of the script for easy modification
 
-## Sync_Folders (Currently has issues, not usable)
-
-Directory synchronization tool. Synchronizes source directory to target directory to make their contents identical. Supports specifying files or directories to exclude, uses hash verification to determine if files are the same, and only copies files with differences.
-
-**Features:**
-- Supports multiple hash algorithms (MD5/SHA1/SHA256) and parallel processing of large files
-- Prompts to confirm deletion of extra files in the target directory one by one to prevent accidental deletion
-- Displays synchronization status with progress bar, supports symbolic link handling
-
 ## Word_and_PDF_format_conversion
 
 Word/PDF to Markdown conversion tool. Converts `.docx` or `.pdf` files to Markdown format, automatically extracts images and names them with captions, preserves heading hierarchy, body paragraphs, and tables.

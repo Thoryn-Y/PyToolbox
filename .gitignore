@@ -237,10 +237,6 @@ Code_Relationship_Analyzer/result/
 # Export_Directory_Structure (output text files)
 Export_Directory_Structure/result/
 
-# Sync_Folders (test files)
-Sync_Folders/test_comprehensive.py
-Sync_Folders/test_sync_folders.py
-
 临时代码/
 训练损失曲线画图/
 Product_price_monitor/
