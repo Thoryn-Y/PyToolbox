@@ -132,6 +132,9 @@ def docx_to_markdown(docx_path, output_dir):
                 temp_name = image_map[rId]
                 temp_path = os.path.join(output_dir, temp_name)
                 safe_title = re.sub(r'[\\/*?:"<>|]', "", title)
+                MAX_FILENAME_LEN = 200
+                if len(safe_title) > MAX_FILENAME_LEN:
+                    safe_title = safe_title[:MAX_FILENAME_LEN]
                 ext = Path(temp_name).suffix
                 new_name = f"{safe_title}{ext}"
                 new_path = os.path.join(output_dir, new_name)
@@ -423,6 +426,10 @@ def pdf_to_markdown(pdf_path, output_dir):
                 info = elem[1]
                 caption = info["caption"]
                 safe_cap = re.sub(r'[\\/*?:"<>|]', "", caption)
+                # 限制文件名长度（防止路径超长），保留扩展名
+                MAX_FILENAME_LEN = 200
+                if len(safe_cap) > MAX_FILENAME_LEN:
+                    safe_cap = safe_cap[:MAX_FILENAME_LEN]
                 new_name = f"{safe_cap}.{info['ext']}"
                 new_path = os.path.join(output_dir, new_name)
                 dup_counter = 1
@@ -456,6 +463,22 @@ def pdf_to_markdown(pdf_path, output_dir):
         f.write('\n'.join(md_lines))
     print(f"Markdown 已生成：{md_path}")
     return md_path
+
+
+# ---------- 输出目录处理 ----------
+def resolve_output_dir(input_path, output_dir):
+    """
+    当输出目录与输入文件所在目录相同时，在输出目录下新建 md_output 子文件夹存放输出产物，
+    避免生成的 md 及图片与源文件混杂在一起。
+    """
+    input_dir = os.path.abspath(os.path.dirname(os.path.abspath(input_path)))
+    out_dir = os.path.abspath(output_dir)
+    if input_dir == out_dir:
+        new_dir = os.path.join(out_dir, "md_output")
+        os.makedirs(new_dir, exist_ok=True)
+        print(f"输出目录与输入文件同目录，已输出到子文件夹：{new_dir}")
+        return new_dir
+    return out_dir
 
 
 # ---------- GUI ----------
@@ -550,6 +573,7 @@ def launch_gui():
         if output_dir == output_placeholder:
             output_dir = ""
         output_dir = output_dir or os.path.dirname(os.path.abspath(input_path))
+        output_dir = resolve_output_dir(input_path, output_dir)
         os.makedirs(output_dir, exist_ok=True)
 
         converting[0] = True
@@ -611,6 +635,7 @@ def main():
         sys.exit(1)
 
     output_dir = args.output_dir or os.path.dirname(os.path.abspath(input_path))
+    output_dir = resolve_output_dir(input_path, output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     ext = Path(input_path).suffix.lower()
