@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{{REFRESH}}<title>{{TITLE}}</title>
+<style>
+{{CSS}}
+</style>
+</head>
+<body data-root="{{PATH}}">
+<header class="bar">
+  <div class="head">
+    <h1><span class="mark">📂</span><span class="root">{{NAME}}</span><em>目录结构</em></h1>
+    <div class="tools">
+      <span class="search">
+        <input id="q" type="search" placeholder="筛选名称… ( / )" autocomplete="off" spellcheck="false">
+        <span class="hits" id="hits"></span>
+      </span>
+      <button class="ghost" id="expand" type="button">全展开</button>
+      <button class="ghost" id="collapse" type="button">全折叠</button>
+    </div>
+  </div>
+  <div class="sub" id="sub">
+    <span class="path" title="{{PATH}}">{{PATH}}</span>
+    <span class="chips">
+      <span class="chip"><b>{{GE}}{{NDIRS}}</b>目录</span>
+      <span class="chip"><b>{{GE}}{{NFILES}}</b>文件</span>
+      <span class="chip">合计 <b>{{GE}}{{TSIZE}}</b></span>
+      <span class="chip"><b>{{MS}}</b> ms</span>
+      <span class="chip" id="stamp">{{TIME}}</span>
+      <span class="chip warn" id="trunc" {{TRUNC_ATTR}}>⚠ 已截断</span>
+    </span>
+  </div>
+</header>
+<main class="tree">
+{{BODY}}
+</main>
+<footer>右键任意文件或文件夹可复制其绝对路径 · 由 folder_tree_watch.py 生成</footer>
+
+<div class="ctx" id="ctx" role="menu" hidden>
+  <button type="button" data-act="copy" role="menuitem">复制路径</button>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  const root = document.body.dataset.root || "/";
+  const isWin = root.indexOf("\\") >= 0;
+  const KEY = "ftw:fold:" + root;
+  const q = document.getElementById("q");
+  const hits = document.getElementById("hits");
+  const dirs = () => document.querySelectorAll("details[data-p]");
+
+  // 程序化改动 open 也会触发 toggle 事件，需屏蔽，避免污染持久化状态
+  let quiet = false;
+
+  const folds = () => {
+    const m = {};
+    dirs().forEach(d => { m[d.dataset.p] = d.open; });
+    return m;
+  };
+  const stored = () => {
+    try { return JSON.parse(sessionStorage.getItem(KEY) || "{}"); } catch (e) { return {}; }
+  };
+  const persist = () => {
+    try { sessionStorage.setItem(KEY, JSON.stringify(folds())); } catch (e) { /* 隐私模式 */ }
+  };
+  const restore = state => {
+    quiet = true;
+    dirs().forEach(d => {
+      if (d.dataset.p in state) d.open = !!state[d.dataset.p];
+    });
+    quiet = false;
+  };
+
+  document.addEventListener("toggle", e => {
+    if (!quiet && e.target.tagName === "DETAILS") persist();
+  }, true);
+
+  // ---------------- 筛选 ----------------
+  let filtering = false;
+  function filter() {
+    const kw = (q.value || "").trim().toLowerCase();
+    const lis = [...document.querySelectorAll("main.tree li")];
+    if (!kw) {
+      if (filtering) { filtering = false; restore(stored()); }
+      lis.forEach(li => { li.hidden = false; });
+      hits.textContent = "";
+      return;
+    }
+    filtering = true;
+    quiet = true;
+    const keep = new Map();
+    let matched = 0;
+    for (let i = lis.length - 1; i >= 0; i--) {     // 倒序：先算子项，再判父项
+      const li = lis[i];
+      const own = li.querySelector(":scope > .row > .name, :scope > details > summary > .name");
+      const self = !!own && own.textContent.toLowerCase().includes(kw);
+      let any = self;
+      if (!any) {
+        for (const c of li.querySelectorAll("li")) {
+          if (keep.get(c)) { any = true; break; }
+        }
+      }
+      keep.set(li, any);
+      li.hidden = !any;
+      if (self) matched++;
+      if (any) {
+        const d = li.querySelector(":scope > details");
+        if (d) d.open = true;                       // 命中项的整条路径展开
+      }
+    }
+    quiet = false;
+    hits.textContent = matched ? `${matched} 项` : "无匹配";
+  }
+
+  q.addEventListener("input", filter);
+  q.addEventListener("keydown", e => {
+    if (e.key === "Escape") { q.value = ""; filter(); q.blur(); }
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); q.select(); }
+  });
+
+  document.getElementById("expand").addEventListener("click", () => {
+    quiet = true;
+    dirs().forEach(d => { d.open = true; });
+    quiet = false;
+    persist();
+  });
+  document.getElementById("collapse").addEventListener("click", () => {
+    quiet = true;
+    dirs().forEach(d => { d.open = false; });
+    quiet = false;
+    persist();
+  });
+
+  restore(stored());
+
+  // ---------------- 路径工具 ----------------
+  const SEP = isWin ? "\\" : "/";
+  function absOf(rel) {
+    const base = root.replace(/[\\/]+$/, "");
+    return base + SEP + (isWin ? rel.replace(/\//g, "\\") : rel);
+  }
+
+  // ---------------- 轻提示 ----------------
+  const toastEl = document.getElementById("toast");
+  let toastTimer = 0;
+  function toast(msg, ms) {
+    toastEl.textContent = msg;
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.hidden = true; }, ms || 2400);
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("已复制：" + text);
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+      ta.remove();
+      toast(ok ? "已复制：" + text : "复制失败，请手动复制");
+    }
+  }
+
+  // ---------------- 右键菜单 ----------------
+  const ctx = document.getElementById("ctx");
+  let target = null;                                  // 当前右键目标的绝对路径
+
+  function showMenu(x, y) {
+    ctx.hidden = false;
+    const r = ctx.getBoundingClientRect();
+    const left = Math.max(8, Math.min(x, window.innerWidth - r.width - 8));
+    const top = Math.max(8, Math.min(y, window.innerHeight - r.height - 8));
+    ctx.style.left = left + "px";
+    ctx.style.top = top + "px";
+  }
+  function hideMenu() {
+    ctx.hidden = true;
+    target = null;
+  }
+
+  document.addEventListener("contextmenu", e => {
+    const li = e.target.closest("li.dir, li.file");
+    if (!li) return;                                  // 空白处保留浏览器默认菜单
+    const holder = li.querySelector(":scope > .row") || li.querySelector(":scope > details");
+    if (!holder || !holder.dataset.p) return;
+    target = absOf(holder.dataset.p);
+    e.preventDefault();
+    showMenu(e.clientX, e.clientY);
+  });
+
+  ctx.addEventListener("click", e => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn || !target) return;
+    const path = target;
+    hideMenu();
+    if (btn.dataset.act === "copy") copyText(path);
+  });
+
+  document.addEventListener("click", e => {
+    if (!ctx.hidden && !ctx.contains(e.target)) hideMenu();
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hideMenu(); });
+  window.addEventListener("blur", hideMenu);
+  window.addEventListener("resize", hideMenu);
+  window.addEventListener("scroll", hideMenu, true);
+})();
+</script>
+</body>
+</html>
